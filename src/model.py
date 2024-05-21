@@ -5,13 +5,13 @@ from sqlalchemy.ext.declarative import declarative_base
 Base = declarative_base()
 
 
-
-class Author():
+class Author(Base):
     __tablename__ = 'authors'
     id = Column(Integer)
     name = Column(String, primary_key=True)
 
-class Kind():
+
+class Kind(Base):
     __tablename__ = 'kinds'
     id = Column(Integer, primary_key=True)
     name = Column(String)
@@ -22,7 +22,7 @@ class Book(Base):
 
     id = Column(Integer, primary_key=True)
     title = Column(String)
-    author_id = Column(Integer, ForeignKey('authors.id'), nullable=False)
+    author_id = Column(Integer, ForeignKey('authors.name'), nullable=False)
     kind_id = Column(Integer, ForeignKey('kinds.id'), nullable=False)
 
     author = relationship("Author")

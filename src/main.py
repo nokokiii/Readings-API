@@ -6,7 +6,7 @@ from sqlalchemy.orm import sessionmaker
 from dotenv import load_dotenv
 import os
 
-from model import Base, Author, Kind, Book
+from model import Base
 
 from repositories import get_book_data
 
@@ -29,12 +29,10 @@ class WLapi:
 
     def ping(self):
         return "Elo zielo"
-    
+
     def send_book(self, data):
         add_book(data)
         return Response(status=200)
-        
-
 
 
 api = WLapi()
@@ -51,8 +49,9 @@ def send_book():
     title, author_name, kind_name = get_book_data(data)
     api.send_book(title, author_name, kind_name)
 
+
 @app.route('/get_book')
-def get_book():  
+def get_book():
     connection_string = os.getenv('connection_string')
 
     engine = create_engine(connection_string)
@@ -66,9 +65,6 @@ def get_book():
 
     result = con.execute(statement)
     print(result.fetchall())
-
-
-
 
 
 if __name__ == "__main__":

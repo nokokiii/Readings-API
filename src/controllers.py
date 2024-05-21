@@ -5,21 +5,21 @@ import os
 
 from model import Base, Author, Kind, Book
 
-from repositories import get_book_data
-
 load_dotenv()
 
-connection_string = os.getenv('connection_string')
 
-engine = create_engine(connection_string)
+connection_str = os.getenv('connection_string')
+
+engine = create_engine(connection_str)
 
 Session = sessionmaker(bind=engine)
 
 Base.metadata.create_all(engine)
 
+
 def add_book(title: str, author_name: str, kind_name: str) -> None:
     session = Session()
-    
+
     try:
         author = session.query(Author).filter_by(name=author_name).first()
         if not author:
@@ -33,7 +33,6 @@ def add_book(title: str, author_name: str, kind_name: str) -> None:
             session.add(kind)
             session.commit()
 
-            
         book = Book(
             title=title,
             author_id=author.id,
