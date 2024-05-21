@@ -1,8 +1,9 @@
 import requests
 from thefuzz import fuzz
+import logging
 
 
-def fetch_data(title: str):
+def fetch_data(title: str) -> None:
     r = requests.get("https://wolnelektury.pl/api/books/").json()
     last_ratio = 0
     for book in r:
@@ -12,8 +13,6 @@ def fetch_data(title: str):
             found_book = {
                 "title": book['title'],
                 "author": book['author'],
-                "epoch": book['epoch'],
-                "genre": book['genre'],
                 "kind": book['kind'],
             }
 
@@ -21,10 +20,9 @@ def fetch_data(title: str):
                              headers={"Content-Type": "application/json"})
 
     if response.status_code == 201:
-        print("Book added successfully!")
+        logging.log("Book added succesfully")
     else:
-        print("Failed to add book.")
-        print(response.text)
+        logging.error(f"Failed to add book:\n {response.text}")
 
 
-print(fetch_data("Pantera"))
+print(fetch_data("Pan Tadeusz, czyli ostatni zajazd na Litwie"))
