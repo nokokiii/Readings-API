@@ -7,14 +7,14 @@ Base = declarative_base()
 
 class Author(Base):
     __tablename__ = 'authors'
-    id = Column(Integer)
-    name = Column(String, primary_key=True)
+    id = Column(Integer, primary_key=True, autoincrement=True)  
+    name = Column(String, unique=True, nullable=False)
 
 
 class Kind(Base):
     __tablename__ = 'kinds'
-    id = Column(Integer, primary_key=True)
-    name = Column(String)
+    id = Column(Integer, primary_key=True, autoincrement=True)  
+    name = Column(String, unique=True, nullable=False)
 
 
 class Book(Base):
@@ -22,8 +22,7 @@ class Book(Base):
 
     id = Column(Integer, primary_key=True)
     title = Column(String)
-    author_id = Column(Integer, ForeignKey('authors.name'), nullable=False)
+    author_id = Column(Integer, ForeignKey('authors.id'), nullable=False)
     kind_id = Column(Integer, ForeignKey('kinds.id'), nullable=False)
 
-    author = relationship("Author")
-    kind = relationship("Kind")
+

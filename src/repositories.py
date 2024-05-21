@@ -9,4 +9,3 @@ def get_book_data(book: dict[str, str]) -> tuple[str]:
 
 
 
-# print(type(add_book_rep({'title': 'Tadeuszek', 'author': 'Stanisław Jachowicz', 'kind': 'Epika'})))

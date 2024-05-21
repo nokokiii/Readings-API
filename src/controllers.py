@@ -3,7 +3,7 @@ from sqlalchemy.orm import sessionmaker
 from dotenv import load_dotenv
 import os
 
-from model import Base, Author, Kind, Book
+from model import Base, Book
 
 load_dotenv()
 
@@ -17,37 +17,24 @@ Session = sessionmaker(bind=engine)
 Base.metadata.create_all(engine)
 
 
-def add_book(title: str, author_name: str, kind_name: str) -> None:
+def add_book(title: str, author_id: int, kind_id: int) -> None:
     session = Session()
-
     try:
-        author = session.query(Author).filter_by(name=author_name).first()
-        if not author:
-            author = Author(name=author_name)
-            session.add(author)
-            session.commit()
-
-        kind = session.query(Kind).filter_by(name=kind_name).first()
-        if not kind:
-            kind = Kind(name=kind_name)
-            session.add(kind)
-            session.commit()
-
         book = Book(
             title=title,
-            author_id=author.id,
-            kind_id=kind.id
+            author_id=author_id,
+            kind_id=kind_id
         )
 
+
         session.add(book)
-
         session.commit()
-
         print(f'Book "{title}" added successfully!')
 
     except Exception as e:
         session.rollback()
-        print(f"Error occurred: {e}")
+        print(e)   
 
     finally:
         session.close()
+
