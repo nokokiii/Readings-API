@@ -84,3 +84,11 @@ class Database:
         Get a book from the database.
         """
         return self.session.query(Book).filter_by(title=title).first()
+
+
+    def get_books(self, params: dict) -> list[dict]:
+        """
+        Get books from the database based on the parameters.
+        """
+        # TODO: Implement this method
+        pass
