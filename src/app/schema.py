@@ -2,8 +2,6 @@ from sqlalchemy import Column, Integer, String, ForeignKey
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
 
-import utils
-
 Base = declarative_base()
 
 
@@ -35,5 +33,4 @@ class Book(Base):
 
 book = Book(title='The Hobbit', author_id=1, kind_id=1)
 
-utils.helper()
 print(book.get_dict())
