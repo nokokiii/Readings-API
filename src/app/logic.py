@@ -1,7 +1,6 @@
-from schema import Author, Kind
-from database import Database
+from src.database import Database
+from src.database.schema import Author, Kind
 
-import os
 
 class Logic:
     def __init__(self):

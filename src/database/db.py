@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-from schema import Author, Kind, Book, Base
+from database.schema import Author, Kind, Book, Base
 
 
 def create_session() -> sessionmaker:

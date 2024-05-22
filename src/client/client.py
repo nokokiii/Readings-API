@@ -1,7 +1,6 @@
-import re
-
 import requests
 from thefuzz import fuzz
+
 
 def fetch_data() -> None:
     while True:

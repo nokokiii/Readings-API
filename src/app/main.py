@@ -1,5 +1,6 @@
 from flask import Flask, Response, jsonify, request
-from logic import getLogic
+
+from src.app.logic import getLogic
 
 
 app = Flask(__name__)

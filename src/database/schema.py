@@ -29,8 +29,3 @@ class Book(Base):
         book_dict = self.__dict__
         book_dict.pop('_sa_instance_state')
         return book_dict
-
-
-book = Book(title='The Hobbit', author_id=1, kind_id=1)
-
-print(book.get_dict())
