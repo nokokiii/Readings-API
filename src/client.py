@@ -36,16 +36,15 @@ def fetch_data() -> None:
                     # else:
                     #     print(f"Failed to add book:\n {response.text}")
             case 2:
-                categories = str(input("Podaj kategorie które/ą chcesz dodać: (format: kategoria kategoria)\n"))
-                categories = categories.split()
-                categories = [f"/kinds/{cat}" for cat in categories]
-                print(f"Wybrane kategorie: {categories}")
+                categories = [f"kinds/{cat}" for cat in (str(input("Podaj kategorie które/ą chcesz dodać: (format: kategoria kategoria)\n"))).split()]
+                author = [f"authors/{str(input("Podaj autora którego chcesz dodać: (format: imie nazwisko)\n")).lower().replace(' ', '-')}"]
 
-                authors = str(input("Podaj autora lub autorów których chcesz dodać: (format: imie nazwisko imie nazwisko)\n"))
-                authors = re.findall(r'\b\w+\s\w+\b', authors)
-                authors = [f"/authors/{name.lower().replace(' ', '-')}" for name in authors]
-                print(f"Wybrani autorzy: {authors}")
-                r = requests.get("https://wolnelektury.pl/api/books/").json()
+                response = requests.get(f"https://wolnelektury.pl/api/{'/'.join(categories + author)}/books")
+                if response.status_code != 200:
+                    print(f"Error: {response.status_code}, {response.reason}")
+                else:
+                    print(response.json())
+
             case 3:
                 print("Thanks for using our client.")
                 break 
