@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-from database.schema import Author, Kind, Book, Base
+from src.database.schema import Author, Kind, Book, Base
 
 
 def create_session() -> sessionmaker:
@@ -15,7 +15,8 @@ def create_session() -> sessionmaker:
     connection_string = os.getenv('connection_string')
     engine = create_engine(connection_string)
     Base.metadata.create_all(engine)
-    return sessionmaker(bind=engine)
+    session = sessionmaker(bind=engine)
+    return session()
 
 
 class Database:
