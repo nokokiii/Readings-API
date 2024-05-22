@@ -2,6 +2,8 @@ from sqlalchemy import Column, Integer, String, ForeignKey
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
 
+import utils
+
 Base = declarative_base()
 
 
@@ -25,4 +27,13 @@ class Book(Base):
     author_id = Column(Integer, ForeignKey('authors.id'), nullable=False)
     kind_id = Column(Integer, ForeignKey('kinds.id'), nullable=False)
 
+    def get_dict(self) -> dict:
+        book_dict = self.__dict__
+        book_dict.pop('_sa_instance_state')
+        return book_dict
 
+
+book = Book(title='The Hobbit', author_id=1, kind_id=1)
+
+utils.helper()
+print(book.get_dict())
