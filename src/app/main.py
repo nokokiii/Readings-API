@@ -6,10 +6,10 @@ from src.app.utils import get_status_code
 app = Flask(__name__)
 logic = Logic()
 
-
 @app.route('/')
 def ping():
     return "Welcome to the WLapi"
+
 
 
 @app.post('/book')
