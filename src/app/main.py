@@ -8,10 +8,6 @@ app = Flask(__name__)
 logic = Logic()
 
 
-@app.route('/')
-def ping():
-    return logic.ping()
-
 @app.post('/book')
 def add_book():
     data = request.get_json()
