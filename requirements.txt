@@ -2,6 +2,6 @@ sqlalchemy
 python-dotenv
 requests
 thefuzz
-flask
 psycopg2
 psycopg
+fastapi
