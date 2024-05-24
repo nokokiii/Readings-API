@@ -4,3 +4,4 @@ requests
 thefuzz
 flask
 psycopg2
+psycopg
