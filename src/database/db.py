@@ -1,7 +1,7 @@
 import os
 
 from dotenv import load_dotenv
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, select
 from sqlalchemy.orm import sessionmaker
 
 from src.database.schema import Author, Kind, Book, Base
@@ -86,9 +86,52 @@ class Database:
         return self.session.query(Book).filter_by(title=title).first()
 
 
+
     def get_books(self, params: dict) -> list[dict]:
         """
         Get books from the database based on the parameters.
         """
-        # TODO: Implement this method
-        pass
+        author_name = params.get("author")
+        kinds = params.get("kind")
+
+        query = self.session.query(Book)
+
+        if author_name:
+            author = self.session.query(Author).filter_by(name=author_name).first()
+            if author:
+                query = query.filter_by(author_id=author.id)
+
+        if kinds:
+            kind_ids = []
+            for kind in kinds:
+                kind_obj = self.session.query(Kind).filter_by(name=kind).first()
+                if kind_obj:
+                    kind_ids.append(kind_obj.id)
+            if kind_ids:
+                query = query.filter(Book.kind_id.in_(kind_ids))
+
+        books = query.all()
+
+        result = []
+        for book in books:
+            author = self.session.query(Author).filter_by(id=book.author_id).first()
+            kind = self.session.query(Kind).filter_by(id=book.kind_id).first()
+            result.append({
+                'id': book.id,
+                'title': book.title,
+                'author': author.name if author else None,
+                'kind': kind.name if kind else None,
+            })
+
+        return result
+
+
+
+# db = Database()
+
+# print(db.get_books(
+#     {
+#     "kind": ["liryka", "epika"],
+#     "author": "adam mickiewicz"
+#     }
+#     ))

