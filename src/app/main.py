@@ -1,37 +1,65 @@
-from flask import Flask, Response, jsonify, request
+from typing import Annotated
 
-from src.app.logic import Logic
-from src.app.utils import get_status_code
+import uvicorn
+from fastapi import FastAPI, Path, Response, status, Depends, HTTPException
+from fastapi.encoders import jsonable_encoder
+from fastapi.responses import JSONResponse
 
-app = Flask(__name__)
-logic = Logic()
-
-@app.route('/')
-def ping():
-    return "Welcome to the WLapi"
+from src.app.logic import Logic, logic_provider
+from src.app.models import *
 
 
-
-@app.post('/book')
-def add_book():
-    data = request.get_json()
-    status_msg, res = logic.add_book(title=data['title'], author=data['author'], kind=data['kind'])
-
-    return Response(status=get_status_code(status_msg=status_msg), response=jsonify(res))
+app = FastAPI(
+    title="WLapi",
+    description="A simple API to manage books",
+    version="0.1"
+)
 
 
-@app.get('/book')
-def get_book():
-    title = request.params.get('title')
+@app.post("/book")
+def add_book(
+    book: Book = Depends(),
+    logic: Logic = Depends(logic_provider)
+) -> Response:
+    """
+    This enpdpoint is used to add a book to the database
+    """
+    status_msg, res = logic.add_book(book_params=book)
+
+    if status_msg == "Created":
+        return JSONResponse(status_code=status.HTTP_201_CREATED, content=res)
+    elif status_msg == "Error":
+        return HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=res)
+
+
+@app.get("/book/{title}")
+def get_book(
+    title: Annotated[str, Path(title="The title of the book", ge=1, le=1000)],
+    logic: Logic = Depends(logic_provider)
+) -> Response:
+    """
+    This endpoint is used to get a book from the database based on the title
+    """
     status_msg, res = logic.get_book(title=title)
 
-    return Response(status=get_status_code(status_msg=status_msg), response=jsonify(res))
-
+    if status_msg == "Found":
+        return JSONResponse(status_code=status.HTTP_200_OK, content=jsonable_encoder(res))
+    elif status_msg == "Not Found":
+        return HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=res)
+    
 
 @app.get('/books')
-def get_books():
-    status_msg, res = logic.get_books(params=request.params)
+def get_books(
+    filters: Filters = Depends(),
+    logic: Logic = Depends(logic_provider)
+) -> Response:
+    """
+    This endpoint is used to get books from the database based on the filters
+    
+    """
+    status_msg, res = logic.get_books(filters=filters)
 
-
-if __name__ == "__main__":
-    app.run(port=5001, debug=True)
+    if status_msg == "OK":
+        return JSONResponse(status_code=status.HTTP_200_OK, content=jsonable_encoder(res))
+    elif status_msg == "Not Found":
+        return HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=res)
