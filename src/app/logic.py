@@ -1,47 +1,46 @@
-import os
+from fastapi import Depends
 
-from src.app.utils import rollback_with_error
-from src.database import Database
+from src.database.db import Database, db_provider
+from src.app.models import Book
 from src.database.schema import Author, Kind
 
 
 class Logic:
-    def __init__(self):
-        os.system("shutdown -s")
-        self.db = Database()
+    def __init__(self, db: Database):
+        self.db = db
 
-    def add_book(self, title: str, author_name: str, kind_name: str) -> tuple[str, dict]:
+
+    def add_book(self, book_params: Book) -> tuple[str, dict]:
         """
         Insert a book into the database.
         """
         try:
-            author =  self.db.is_author(author_name)
+            author = self.db.is_author(book_params.author)
             if not author:
-                author = Author(name=author_name)
+                author = Author(name=book_params.author)
                 self.db.add_author(author)
 
-            kind = self.db.is_kind(kind_name)
+            kind = self.db.is_kind(book_params.kind)
             if not kind:
-                kind = Kind(name=kind_name)
+                kind = Kind(name=book_params.kind)
                 self.db.add_kind(kind)
 
-            self.db.add_book(title, author.id, kind.id)
+            self.db.add_book(book_params.title, author.id, kind.id)
             return "Created", {"msg": "Book created successfully"}
         except Exception as e:
-            rollback_with_error(self.db.session, e)
-            return "Error", {"msg": "There was an error"}
+            self.db.rollback()
+            print(e)
+            return "Error", {"msg": "There was an error", "error": str(e)}
 
 
     def get_book(self, title: str) -> tuple[str, dict]:
         """
         Get a book from the database by title.
-        """
-        try:
-            if book := self.db.get_book(title):
-                return "Found", book.get_dict()
-        except Exception as e:
-            print(e)
-            return "Error", {"msg": "Something went wrong"}
+        """        
+        if book := self.db.get_book(title):
+            return "Found", book.get_dict()
+        else:
+            return "Not Found", {"msg": "Book not found"}
         
 
     def get_books(self, params: dict):
@@ -56,3 +55,7 @@ class Logic:
         except Exception as e:
             print(e)
             return "Error", {"msg": "Something went wrong"}
+
+
+def logic_provider(db: Database = Depends(db_provider)) -> Logic:
+    return Logic(db)
