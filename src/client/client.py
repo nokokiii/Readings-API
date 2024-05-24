@@ -1,5 +1,3 @@
-import re
-
 import requests
 from thefuzz import fuzz
 
@@ -42,7 +40,6 @@ def fetch_data() -> None:
                     f"authors/{input("Podaj autora którego chcesz dodać: (format: imie nazwisko)\n").strip().lower().replace(' ', '-')}"]
 
                 response = requests.get(f"https://wolnelektury.pl/api/{'/'.join(categories + author)}/books")
-
                 if response.status_code != 200:
                     print(f"Error: {response.status_code}, {response.reason}")
                     break

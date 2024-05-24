@@ -1,0 +1,7 @@
+sqlalchemy
+python-dotenv
+requests
+thefuzz
+psycopg2
+psycopg
+fastapi
