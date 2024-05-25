@@ -5,3 +5,5 @@ thefuzz
 psycopg2
 psycopg
 fastapi
+click
+halo
