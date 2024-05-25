@@ -1,6 +1,5 @@
 from typing import Annotated
 
-import uvicorn
 from fastapi import FastAPI, Path, Response, status, Depends, HTTPException
 from fastapi.encoders import jsonable_encoder
 from fastapi.responses import JSONResponse
