@@ -1,4 +1,5 @@
 from sqlalchemy import Column, Integer, String, ForeignKey
+from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
 
 Base = declarative_base()
@@ -23,6 +24,9 @@ class Book(Base):
     title = Column(String)
     author_id = Column(Integer, ForeignKey('authors.id'), nullable=False)
     kind_id = Column(Integer, ForeignKey('kinds.id'), nullable=False)
+
+    author = relationship('Author', backref='books')
+    kind = relationship('Kind', backref='books')
 
     def get_dict(self) -> dict:
         book_dict = self.__dict__
