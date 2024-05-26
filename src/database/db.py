@@ -1,4 +1,5 @@
 import os
+from typing import List, Optional
 
 from dotenv import load_dotenv
 from fastapi import Depends
@@ -41,13 +42,13 @@ class Database:
         """
         self.conn.session.rollback()
 
-    def is_author(self, author: str) -> Author | None:
+    def is_author(self, author: str) -> Optional[Author]:
         """
         Checks if an author already exists in the database. If yes returns the author.
         """
         return self.conn.session.query(Author).filter_by(name=author).first()
     
-    def is_kind(self, kind: str) -> Kind | None:
+    def is_kind(self, kind: str) -> Optional[Kind]:
         """
         Check if a kind already exists in the database. If yes returns the kind.
         """
@@ -91,49 +92,31 @@ class Database:
             print(e)
 
 
-    def get_book(self, title: str) -> Book | None:
+    def get_book(self, title: str) -> Optional[Book]:
         """
         Get a book from the database.
         """
         return self.conn.session.query(Book).filter_by(title=title).first()
 
 
-    def get_books(self, params: dict) -> list[dict]:
+    def get_books(self, authors: List[str], kinds: List[str]) -> List[dict]:
         """
         Get books from the database based on the parameters.
         """
-        author_name = params.get("author")
-        kinds = params.get("kind")
+        if authors and kinds:
+            db_res = select(Book).join(Book.author_id).join(Kind.id).where(Author.name.in_(authors)).where(Kind.name.in_(kinds))
+        elif authors:
+            db_res = select(Book).join(Author.id).where(Author.name.in_(authors))
+        elif kinds:
+            db_res = select(Book).join(Kind.id).where(Kind.name.in_(kinds))
+        else:
+            db_res = select(Book)
 
-        query = self.conn.query(Book)
+        db_res = self.conn.session.execute(db_res).scalars().all()
 
-        if author_name:
-            if author := self.conn.session.query(Author).filter_by(name=author_name).first():
-                query = query.filter_by(author_id=author.id)
+        print(db_res)
 
-        if kinds:
-            kind_ids = []
-            for kind in kinds:
-                if kind_obj := self.conn.session.query(Kind).filter_by(name=kind).first():
-                    kind_ids.append(kind_obj.id)
-
-            if kind_ids:
-                query = query.filter(Book.kind_id.in_(kind_ids))
-
-        books = query.all()
-
-        result = []
-        for book in books:
-            author = self.conn.session.query(Author).filter_by(id=book.author_id).first()
-            kind = self.conn.session.query(Kind).filter_by(id=book.kind_id).first()
-            result.append({
-                'id': book.id,
-                'title': book.title,
-                'author': author.name if author else None,
-                'kind': kind.name if kind else None,
-            })
-
-        return result
+        return db_res
 
 
 def conn_provider() -> Conn:
