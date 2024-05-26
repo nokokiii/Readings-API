@@ -1,6 +1,6 @@
-from typing import Annotated
+from typing import Annotated, List, Optional
 
-from fastapi import FastAPI, Path, Response, status, Depends, HTTPException
+from fastapi import FastAPI, Response, status, HTTPException, Query, Depends
 from fastapi.encoders import jsonable_encoder
 from fastapi.responses import JSONResponse
 
@@ -33,7 +33,7 @@ def add_book(
 
 @app.get("/book/{title}")
 def get_book(
-    title: Annotated[str, Path(title="The title of the book", ge=1, le=1000)],
+    title: str = Annotated[str, Query(...)],
     logic: Logic = Depends(logic_provider)
 ) -> Response:
     """
@@ -49,14 +49,14 @@ def get_book(
 
 @app.get('/books')
 def get_books(
-    filters: Filters = Depends(),
+    authors: List[str] = Query([]),
+    kinds: List[str] = Query([]),
     logic: Logic = Depends(logic_provider)
 ) -> Response:
     """
     This endpoint is used to get books from the database based on the filters
-    
     """
-    status_msg, res = logic.get_books(filters=filters)
+    status_msg, res = logic.get_books(authors=authors, kinds=kinds)
 
     if status_msg == "OK":
         return JSONResponse(status_code=status.HTTP_200_OK, content=jsonable_encoder(res))

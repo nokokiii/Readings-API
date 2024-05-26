@@ -1,3 +1,5 @@
+from typing import List, Tuple
+
 from fastapi import Depends
 
 from src.database.db import Database, db_provider
@@ -10,7 +12,7 @@ class Logic:
         self.db = db
 
 
-    def add_book(self, book_params: Book) -> tuple[str, dict]:
+    def add_book(self, book_params: Book) -> Tuple[str, dict]:
         """
         Insert a book into the database.
         """
@@ -33,7 +35,7 @@ class Logic:
             return "Error", {"msg": "There was an error", "error": str(e)}
 
 
-    def get_book(self, title: str) -> tuple[str, dict]:
+    def get_book(self, title: str) -> Tuple[str, dict]:
         """
         Get a book from the database by title.
         """        
@@ -43,12 +45,12 @@ class Logic:
             return "Not Found", {"msg": "Book not found"}
         
 
-    def get_books(self, params: dict):
+    def get_books(self, authors: List[str], kinds: List[str]) -> Tuple[str, dict]:
         """
         Get books from the database by title, author, or kind.
         """
         try:
-            if books := self.db.get_books(params):
+            if books := self.db.get_books(authors, kinds):
                 return "OK", books
             else:
                 return "Not Found", {"msg": "No books found"}
