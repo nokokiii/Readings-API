@@ -1,10 +1,9 @@
-import os
-
 import requests
 
+from src.database.db import Conn
 from src.database.schema import Author
-from src.database.db import create_session
 
+# TODO: Create connection using Conn class from db.py
 
 def collect_authors():
     r = requests.get("https://wolnelektury.pl/api/authors/").json()
@@ -21,12 +20,12 @@ def insert_authors(authors, session):
 
 
 def main():
-    session = create_session()
+    conn = Conn()
 
     authors = collect_authors()
-    insert_authors(authors, session)
+    insert_authors(authors, conn.session)
 
-    added_authors = session.query(Author).all()
+    added_authors = conn.session.query(Author).all()
 
     for author in added_authors:
         print(author.name)

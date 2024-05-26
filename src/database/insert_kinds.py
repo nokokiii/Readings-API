@@ -1,9 +1,9 @@
-import os
-
 import requests
 
+from src.database.db import Conn
 from src.database.schema import Kind
-from src.database.db import create_session
+
+# TODO: Create connection using Conn class from db.py
 
 
 def collect_kinds():
@@ -21,12 +21,12 @@ def insert_kinds(kinds, session):
 
 
 def main():
-    session = create_session()
+    conn = Conn()
 
     kinds = collect_kinds()
-    insert_kinds(kinds, session)
+    insert_kinds(kinds, conn.session)
 
-    added_kinds = session.query(Kind).all()
+    added_kinds = conn.session.query(Kind).all()
     
     for kind in added_kinds:
         print(kind.name)
