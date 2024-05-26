@@ -1,5 +1,6 @@
 import os
 import sys
+from typing import List, Dict
 
 import requests
 import click
@@ -8,6 +9,7 @@ from thefuzz import fuzz
 
 
 HOST = "http://localhost:8000"
+
 
 def user_option() -> int:
     """
@@ -29,7 +31,7 @@ def user_option() -> int:
     
 
 
-def get_single_book() -> dict:
+def get_single_book() -> Dict[str, str]:
     """
     Get a single book from the API that matches the title
     """
@@ -53,7 +55,7 @@ def get_single_book() -> dict:
     return found_book
 
 
-def add_single_book(book: dict) -> None:
+def add_single_book(book: Dict[str, str]) -> None:
     """
     Add a single book to the database
     """
@@ -75,25 +77,29 @@ def get_kinds() -> str:
     """
     Get the kinds from the user
     """
-    kinds = click.prompt("Enter the kinds you want to add (format: kind kind)").strip().lower().split()
-    return "".join([f"{kind}/" for kind in kinds])
+    kinds = click.prompt("Enter the kinds you want to add (format: kind kind)", default="", show_default=False).strip().split()
+
+    return "".join([f"/kinds/{kind}" for kind in kinds]) if kinds else ""
 
 
-def get_authors() -> list[str]:
+def get_authors() -> List[str]:
     """
     Get the authors from the user
     """
-    authors = click.prompt("Enter the authors you want to add (format: name-lastname name-secondname-lastname)").strip().lower().split()
-    return [f'authors/{author}' for author in authors]
+    authors = click.prompt("Enter the authors you want to add (format: name-lastname name-secondname-lastname)", default="", show_default=False).strip().lower().split()
+
+    return [f'/authors/{author}' for author in authors] if authors else []
 
 
-def add_books(books: list[dict]) -> None:
-    with click.progressbar(books, label="Adding books") as bar:
-        for book in books:
-            add_single_book(book)
+def add_books(books: List[Dict[str, str]]) -> None:
+    """
+    Add a list of books to the database
+    """
+    for book in books:
+        add_single_book(book)
 
 
-def get_books() -> list[dict]:
+def get_books() -> List[Dict[str, str]]:
     """
     Get filtered books from the API
     """
@@ -104,22 +110,30 @@ def get_books() -> list[dict]:
 
     spinner = halo.Halo(text="Fetching books", spinner="dots")
     spinner.start()
-
-    for author in authors:
-        response = requests.get(f"https://wolnelektury.pl/api/{kinds}/{author}/books")
-
-        if response.status_code != 200:
-            continue
-
-        books.extend([{"title": book["title"], "author": book["author"], "kind": book["kind"]} for book in response.json()])
     
+    if authors:
+        for author in authors:
+            print(f"https://wolnelektury.pl/api{kinds}{author}/books")
+            response = requests.get(f"https://wolnelektury.pl/api{kinds}{author}/books")
+
+            if response.status_code != 200:
+                continue
+
+            books.extend([{"title": book["title"], "author": book["author"], "kind": book["kind"]} for book in response.json()])
+    else:
+        print(f"https://wolnelektury.pl/api{kinds}/books")
+        response = requests.get(f"https://wolnelektury.pl/api{kinds}/books")
+
+        if response.status_code == 200:
+            books = [{"title": book["title"], "author": book["author"], "kind": book["kind"]} for book in response.json()]
+
     spinner.stop()
 
     return books
 
-def cli() -> None:
+def main() -> None:
     """
-    Client logic
+    Main function to run the program
     """
     while True:
         num = user_option()
@@ -140,14 +154,7 @@ def cli() -> None:
                 sys.exit(0)
 
 
-def main() -> None:
-    """
-    Main loop
-    """
-    while True:
-        cli()
-        os.system("cls")
-
-
 if __name__ == "__main__":
-    main()
+    while True:
+        main()
+        os.system("cls")
