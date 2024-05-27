@@ -62,13 +62,7 @@ def add_single_book(book: Dict[str, str]) -> None:
     response = requests.post(url=f"{HOST}/book", params=book,
                             headers={"Content-Type": "application/json"})
 
-    if response.status_code == 201:
-        click.echo(f"{book['title']} added succesfully")
-        click.echo("Press any key to go back to the menu")
-        if click.getchar():
-            os.system("cls")
-            return
-    else:
+    if response.status_code != 201:
         os.system("cls")
         click.secho(f"Failed to add book:\n {response.text}", fg="red")
 
@@ -95,8 +89,9 @@ def add_books(books: List[Dict[str, str]]) -> None:
     """
     Add a list of books to the database
     """
-    for book in books:
-        add_single_book(book)
+    with click.progressbar(books, label="Adding books") as bar:
+        for book in bar:
+            add_single_book(book)
 
 
 def get_books() -> List[Dict[str, str]]:
@@ -142,6 +137,11 @@ def main() -> None:
             case 1:
                 if book := get_single_book():
                     add_single_book(book)
+                    
+                    if click.getchar():
+                        click.echo("Press any key to go back to the menu")
+                    
+                    os.system("cls")
                 else: 
                     click.echo("Book not found")
             case 2:
