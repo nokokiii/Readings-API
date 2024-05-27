@@ -2,14 +2,43 @@ from typing import List, Tuple
 
 from fastapi import Depends
 
-from src.database.db import Database, db_provider
 from src.app.models import Book
+from src.database.db import Database, db_provider
 from src.database.schema import Author, Kind
 
 
 class Logic:
+    """
+    This class contains the business logic for the application.
+    """
+
     def __init__(self, db: Database):
         self.db = db
+
+    def create_author(self, author: str) -> Author:
+        """
+        Create an author in the database if it doesn't exist.
+        """
+        author = self.db.is_author(author)
+
+        if not author:
+            author = Author(name=author)
+            self.db.add_author(author)
+
+        return author
+
+    
+    def create_kind(self, kind: str) -> Kind:
+        """
+        Create a kind in the database if it doesn't exist.
+        """
+        kind = self.db.is_kind(kind)
+
+        if not kind:
+            kind = Kind(name=kind)
+            self.db.add_kind(kind)
+
+        return kind
 
 
     def add_book(self, book_params: Book) -> Tuple[str, dict]:
@@ -17,15 +46,8 @@ class Logic:
         Insert a book into the database.
         """
         try:
-            author = self.db.is_author(book_params.author)
-            if not author:
-                author = Author(name=book_params.author)
-                self.db.add_author(author)
-
-            kind = self.db.is_kind(book_params.kind)
-            if not kind:
-                kind = Kind(name=book_params.kind)
-                self.db.add_kind(kind)
+            author = self.create_author(book_params.author)
+            kind = self.create_kind(book_params.kind)
 
             self.db.add_book(book_params.title, author.id, kind.id)
             return "Created", {"msg": "Book created successfully"}
@@ -60,4 +82,7 @@ class Logic:
 
 
 def logic_provider(db: Database = Depends(db_provider)) -> Logic:
+    """
+    Return an instance of the Logic class.
+    """
     return Logic(db)

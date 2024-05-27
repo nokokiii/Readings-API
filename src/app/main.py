@@ -1,17 +1,21 @@
-from typing import Annotated, List, Optional
+"""
+This module contains the main FastAPI application
+"""
+
+from typing import Annotated, List
 
 from fastapi import FastAPI, Response, status, HTTPException, Query, Depends
 from fastapi.encoders import jsonable_encoder
 from fastapi.responses import JSONResponse
 
 from src.app.logic import Logic, logic_provider
-from src.app.models import *
+from src.app.models import Book
 
 
 app = FastAPI(
     title="WLapi",
     description="A simple API to manage books",
-    version="0.1"
+    version="1.0"
 )
 
 
@@ -28,7 +32,7 @@ def add_book(
     if status_msg == "Created":
         return JSONResponse(status_code=status.HTTP_201_CREATED, content=res)
     elif status_msg == "Error":
-        return HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=res)
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=res)
 
 
 @app.get("/book/{title}")
@@ -44,7 +48,7 @@ def get_book(
     if status_msg == "Found":
         return JSONResponse(status_code=status.HTTP_200_OK, content=jsonable_encoder(res))
     elif status_msg == "Not Found":
-        return HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=res)
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=res)
     
 
 @app.get('/books')
@@ -61,4 +65,4 @@ def get_books(
     if status_msg == "OK":
         return JSONResponse(status_code=status.HTTP_200_OK, content=jsonable_encoder(res))
     elif status_msg == "Not Found":
-        return HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=res)
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=res)
