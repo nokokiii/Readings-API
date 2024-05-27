@@ -104,11 +104,11 @@ class Database:
         Get books from the database based on the parameters.
         """
         if authors and kinds:
-            db_res = select(Book).join(Book.author_id).join(Kind.id).where(Author.name.in_(authors)).where(Kind.name.in_(kinds))
+            db_res = select(Book).join(Author).join(Kind).where(Author.name.in_(authors)).where(Kind.name.in_(kinds))
         elif authors:
-            db_res = select(Book).join(Author.id).where(Author.name.in_(authors))
+            db_res = select(Book).join(Author).where(Author.name.in_(authors))
         elif kinds:
-            db_res = select(Book).join(Kind.id).where(Kind.name.in_(kinds))
+            db_res = select(Book).join(Kind).where(Kind.name.in_(kinds))
         else:
             db_res = select(Book)
 
