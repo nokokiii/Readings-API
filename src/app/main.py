@@ -27,12 +27,8 @@ def add_book(
     """
     This enpdpoint is used to add a book to the database
     """
-    status_msg, res = logic.add_book(book_params=book)
-
-    if status_msg == "Created":
-        return JSONResponse(status_code=status.HTTP_201_CREATED, content=res)
-    elif status_msg == "Error":
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=res)
+    _, res = logic.add_book(book_params=book)
+    return JSONResponse(status_code=status.HTTP_201_CREATED, content=res)
 
 
 @app.get("/book/{title}")

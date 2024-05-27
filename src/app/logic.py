@@ -45,16 +45,11 @@ class Logic:
         """
         Insert a book into the database.
         """
-        try:
-            author = self.create_author(book_params.author)
-            kind = self.create_kind(book_params.kind)
+        author = self.create_author(book_params.author)
+        kind = self.create_kind(book_params.kind)
 
-            self.db.add_book(book_params.title, author.id, kind.id)
-            return "Created", {"msg": "Book created successfully"}
-        except Exception as e:
-            self.db.rollback()
-            print(e)
-            return "Error", {"msg": "There was an error", "error": str(e)}
+        self.db.add_book(book_params.title, author.id, kind.id)
+        return "Created", {"msg": "Book created successfully"}
 
 
     def get_book(self, title: str) -> Tuple[str, dict]:

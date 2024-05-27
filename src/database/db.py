@@ -1,4 +1,8 @@
-import os
+"""
+This module is used to interact with the database.
+"""
+
+from os import getenv
 from typing import List, Optional
 
 from dotenv import load_dotenv
@@ -24,8 +28,9 @@ class Conn:
     def __init__(self):
         if self.__initialized:
             return
+        
         load_dotenv()
-        connection_string = os.getenv('connection_string')
+        connection_string = getenv('connection_string')
         self.engine = create_engine(connection_string)
         Base.metadata.create_all(self.engine)
         self.session = sessionmaker(bind=self.engine)()
@@ -33,6 +38,10 @@ class Conn:
 
 
 class Database:
+    """
+    This class is used to interact with the database.
+    """
+
     def __init__(self, conn: Conn):
         self.conn = conn
 
@@ -114,14 +123,18 @@ class Database:
 
         db_res = self.conn.session.execute(db_res).scalars().all()
 
-        print(db_res)
-
         return db_res
 
 
 def conn_provider() -> Conn:
+    """
+    This function is used to provide a connection to the database.
+    """
     return Conn()
 
 
 def db_provider(conn: Conn = Depends(conn_provider)) -> Database:
+    """
+    This function is used to provide a database object.
+    """
     return Database(conn)
