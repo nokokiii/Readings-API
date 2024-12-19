@@ -1,4 +1,4 @@
-# WLapi
+# Readings API
 
 This is a simple api that uses fastapi and sqlalchemy to create an API that gives users more features then [Wolne Lektury](https://wolnelektury.pl/).
 
